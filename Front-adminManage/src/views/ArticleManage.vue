@@ -211,7 +211,7 @@ const emptyForm = () => ({
 const form = reactive(emptyForm())
 
 const rules = {
-  title: [{ required: true, message: '请输入文章标题', trigger: 'blur' }],
+  title: [{ required: true, message: '水电费请输入文章标题', trigger: 'blur' }],
   type: [{ required: true, message: '请选择文章类型', trigger: 'change' }],
 }
 
