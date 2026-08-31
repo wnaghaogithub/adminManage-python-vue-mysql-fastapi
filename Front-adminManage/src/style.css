@@ -1,0 +1,56 @@
+:root {
+  --brand-gradient: linear-gradient(135deg, #5b7cfa 0%, #8e54e9 100%);
+  --brand: #5b7cfa;
+  --brand-dark: #4a63d8;
+  --brand-light: #edf1ff;
+  --text-main: #1f2d3d;
+  --text-sub: #7a8699;
+  --border: #e5e9f2;
+  --bg-page: #f4f6fb;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  background: var(--bg-page);
+}
+
+/* Element Plus 主题微调 */
+:root {
+  --el-color-primary: #5b7cfa;
+}
+
+.el-button--primary {
+  --el-button-hover-bg-color: #6f8cff;
+  --el-button-active-bg-color: #4a63d8;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #ccd3e2;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b0b9cf;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
