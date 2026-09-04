@@ -31,3 +31,11 @@ FERNET_KEY = os.environ.get("FERNET_KEY", _derive_fernet_key())
 # ---- 上传目录 ----
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
+
+# ---- Redis 缓存 ----
+REDIS_HOST = os.environ.get("REDIS_HOST", "127.0.0.1")
+REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
+REDIS_DB = int(os.environ.get("REDIS_DB", "0"))
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", None) or None
+REDIS_DECODE_RESPONSES = True
+REDIS_STATS_TTL = int(os.environ.get("REDIS_STATS_TTL", "3600"))

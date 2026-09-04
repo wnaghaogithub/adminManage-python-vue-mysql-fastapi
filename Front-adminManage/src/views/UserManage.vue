@@ -8,7 +8,7 @@
               <el-icon :size="22"><User /></el-icon>
             </div>
             <div>
-              <div class="stat-num">{{ total }}</div>
+              <div class="stat-num">{{ stats.total }}</div>
               <div class="stat-label">用户总数</div>
             </div>
           </div>
@@ -17,7 +17,7 @@
               <el-icon :size="22"><Finished /></el-icon>
             </div>
             <div>
-              <div class="stat-num">{{ list.length }}</div>
+              <div class="stat-num">{{ stats.page_count }}</div>
               <div class="stat-label">当前页数据</div>
             </div>
           </div>
@@ -26,7 +26,7 @@
               <el-icon :size="22"><Calendar /></el-icon>
             </div>
             <div>
-              <div class="stat-num">{{ ageAvg }}</div>
+              <div class="stat-num">{{ stats.avg_age }}</div>
               <div class="stat-label">平均年龄</div>
             </div>
           </div>
@@ -209,7 +209,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Calendar,
@@ -227,7 +227,7 @@ import {
 } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { regionData, codeToText } from 'element-china-area-data'
-import { getUsers, createUser, updateUser, deleteUser } from '../api/user'
+import { getUsers, getUserStats, createUser, updateUser, deleteUser } from '../api/user'
 
 const uploadHeaders = {
   Authorization: `Bearer ${localStorage.getItem('admin_token') || ''}`,
@@ -237,6 +237,7 @@ const loading = ref(false)
 const submitting = ref(false)
 const list = ref([])
 const total = ref(0)
+const stats = ref({ total: 0, page_count: 0, avg_age: 0 })
 const query = reactive({ page: 1, pageSize: 10, keyword: '' })
 
 const dialogVisible = ref(false)
@@ -277,11 +278,6 @@ const rules = {
     },
   ],
 }
-
-const ageAvg = computed(() => {
-  if (!list.value.length) return 0
-  return (list.value.reduce((sum, u) => sum + (Number(u.age) || 0), 0) / list.value.length).toFixed(1)
-})
 
 function ageType(age) {
   if (age >= 30) return 'primary'
@@ -324,9 +320,13 @@ function formatTime(time) {
 async function fetchList() {
   loading.value = true
   try {
-    const res = await getUsers({ ...query })
-    list.value = res.items
-    total.value = res.total
+    const [listRes, statsRes] = await Promise.all([
+      getUsers({ ...query }),
+      getUserStats({ ...query }),
+    ])
+    list.value = listRes.items
+    total.value = listRes.total
+    stats.value = statsRes
   } finally {
     loading.value = false
   }

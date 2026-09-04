@@ -42,6 +42,12 @@ class PageOut(BaseModel):
     items: list[UserOut]
 
 
+class UserStatsOut(BaseModel):
+    total: int
+    page_count: int
+    avg_age: float
+
+
 class ArticleCreate(BaseModel):
     title: str
     image: str = ""

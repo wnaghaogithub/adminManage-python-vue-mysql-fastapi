@@ -13,3 +13,6 @@ PyJWT>=2.8.0              # 生成 / 校验 JWT Token，用于登录鉴权
 # ---- 请求处理 ----
 python-multipart>=0.0.9   # 解析 multipart 表单数据，支撑头像文件上传接口
 pydantic>=2.7.0           # 数据校验库，定义请求 / 响应模型（app/schemas.py）
+
+# ---- 缓存 ----
+redis>=5.0.0              # Redis 客户端，用于缓存用户管理统计卡片数据

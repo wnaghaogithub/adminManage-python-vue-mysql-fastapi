@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 from ..config import UPLOAD_DIR
 from ..database import get_db
 from ..models import User
-from ..schemas import PageOut, UserCreate, UserOut, UserUpdate
+from ..redis_client import get_cached_stats, invalidate_users_stats, set_cached_stats
+from ..schemas import PageOut, UserCreate, UserOut, UserStatsOut, UserUpdate
 from ..security import decrypt_password, encrypt_password
 from .auth import get_current_admin
 
@@ -52,6 +53,38 @@ def list_users(
     return PageOut(total=total, items=[_to_out(u) for u in users])
 
 
+@router.get("/users/stats", response_model=UserStatsOut)
+def get_user_stats(
+    page: int = 1,
+    page_size: int = 10,
+    keyword: str = "",
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_admin),
+):
+    cached = get_cached_stats(page, page_size, keyword)
+    if cached:
+        return UserStatsOut(**cached)
+
+    query = db.query(User)
+    if keyword:
+        query = query.filter(User.username.like(f"%{keyword}%"))
+
+    total = query.count()
+    users = (
+        query.order_by(User.id.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
+
+    page_count = len(users)
+    avg_age = round(sum(u.age for u in users) / page_count, 1) if page_count else 0.0
+
+    stats = UserStatsOut(total=total, page_count=page_count, avg_age=avg_age)
+    set_cached_stats(page, page_size, keyword, stats.model_dump())
+    return stats
+
+
 @router.post("/users", response_model=UserOut, status_code=201)
 def create_user(
     data: UserCreate,
@@ -72,6 +105,7 @@ def create_user(
     db.add(user)
     db.commit()
     db.refresh(user)
+    invalidate_users_stats()
     return _to_out(user)
 
 
@@ -102,6 +136,7 @@ def update_user(
             setattr(user, key, fields[key])
     db.commit()
     db.refresh(user)
+    invalidate_users_stats()
     return _to_out(user)
 
 
@@ -116,6 +151,7 @@ def delete_user(
         raise HTTPException(status_code=404, detail="用户不存在")
     db.delete(user)
     db.commit()
+    invalidate_users_stats()
     return {"message": "删除成功"}
 
 
